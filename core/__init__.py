@@ -1,0 +1,3 @@
+"""
+Lisabot2 core
+"""

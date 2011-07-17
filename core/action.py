@@ -7,6 +7,7 @@ from __future__ import division
 
 import random
 import re
+import xml.sax.saxutils
 
 from pysocialbot import launcher
 #from pysocialbot.twitter import userstream
@@ -20,8 +21,7 @@ class Tweet(launcher.Action):
     """tweet."""
     
     def __call__(self, env):
-        return env.api.post(chatter.generate(env.markovLtoR,
-               env.markovRtoL).replace(chatter.END_SYMBOL, ""))
+        return env.api.post(chatter.greedygenerate(env.markovtable, []))
     
     def __repr__(self):
         return "random tweet"
@@ -101,10 +101,10 @@ class Study(launcher.Action):
     
     def __init__(self, status):
         launcher.Action.__init__(self)
-        self.text = status.cleaned()
+        self.text = xml.sax.saxutils.unescape(status.cleaned())
     
     def __call__(self, env):
-        chatter.extend_table(env.markovLtoR, env.markovRtoL, self.text)
+        chatter.extend_table(env.markovtable, self.text)
         return True
     
     def __repr__(self):

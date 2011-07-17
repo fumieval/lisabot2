@@ -17,7 +17,8 @@ def parse(x):
 def wakati(x):
     return MeCab.Tagger(str("-Owakati")).parse(x.encode("utf-8")).decode("utf-8").strip("\n").split(" ")
 
-def isTerminal(word):
+
+def isterminal(word):
     return word == START_SYMBOL or word == END_SYMBOL
 
 def isSymbol(word):

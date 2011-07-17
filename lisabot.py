@@ -12,6 +12,7 @@ from pysocialbot.launcher import Daemon, Action, Hourly, DT
 from pysocialbot.util import attempt
 from pysocialbot.util.convert import convert_object
 from pysocialbot.twitter.userstream import UserStream
+from pysocialbot.botlib.association import Association
 
 from lisabot2 import util
 from lisabot2.settings import TRIGGER
@@ -30,8 +31,8 @@ class Dump(Action):
         data["conversation"] = env.conversation
 
         pickle.dump(data, open(OPTIONS.envfile, "w"))
-        pickle.dump(env.markovLtoR, open(OPTIONS.dictfile + ".ltor", "w"))
-        pickle.dump(env.markovRtoL, open(OPTIONS.dictfile + ".rtol", "w"))     
+        pickle.dump(env.markovtable, open(OPTIONS.dictfile, "w"))
+        env.association.dump(open(OPTIONS.dictfile + ".assoc", "w"))
         env.daemon.dumpstate(open(OPTIONS.statefile, "w"))
         
         return "Dumped at %s, %s" % (OPTIONS.envfile, OPTIONS.statefile)
@@ -62,9 +63,11 @@ def main():
     bot.resetstate()
     attempt(lambda: bot.loadstate(open(OPTIONS.statefile, "r")), IOError)
     
-    bot.env.markovLtoR = pickle.load(open(OPTIONS.dictfile + ".ltor","r"))
-    bot.env.markovRtoL = pickle.load(open(OPTIONS.dictfile + ".rtol","r"))
+    #bot.env.markovtable = {}
+    bot.env.markovtable = pickle.load(open(OPTIONS.dictfile, "r"))
 
+    bot.env.association = Association()
+    bot.env.association.load(open(OPTIONS.dictfile + ".assoc", "r"))
     if OPTIONS.debug:
         try:
             bot.run()

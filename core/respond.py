@@ -13,14 +13,15 @@ from pysocialbot import launcher
 from pysocialbot.twitter import userstream
 
 from lisabot2.core.vocab import PATTERN, FIBONACCI_SIGN
-from lisabot2.core import chatter, action
+from lisabot2.core import chatter, action, vocab
 from lisabot2.settings import TZ_ACTIVITY
 
-IGNORE = re.compile("\.(@\w+ )+|http:\/\/(\w+|\.|\/)*|RT @\w+:?|#\w+|@\w+")
+IGNORE = re.compile("\.(@\w+ )+|http:\/\/(\w+|\.|\/)*|RT @\w+:?|@\w+")
 
 RT_REGEX = re.compile(r"RT @\w:?.*")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
+RESPONSE_THRESHOLD = 3
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -39,7 +40,7 @@ class LisabotStreamHandler(userstream.StreamHandler):
             return
         print "New Follower: @%s" % source.screen_name
         self.api.follow(source.id)
-        self.api.post(lisabot2.core.vocab.follow(self.env) % \
+        self.api.post(vocab.follow(self.env) % \
                       {"screen_name": source.screen_name,
                        "id": source.id,
                        "name": source.name})
@@ -74,17 +75,7 @@ def get_response(env, status):
         
         if len(els) == 2:
             increment_impression(els[1])
-        return random.choice(els[0])
-
-    def getsentence(keywords, ltor, rtol, repeated=False):
-        """generate sentence by markov chain."""
-        result = chatter.generate(env.markovLtoR, env.markovRtoL, keywords)
-        if result:
-            return result
-        if repeated or status.user.protected:
-            return "……"
-        action.Study(status.cleaned())(env)
-        return getsentence(keywords, ltor, rtol, True)
+        return random.choice(els[0])  
    
     check = lambda i: PATTERN[i].search(status.text)
     
@@ -143,7 +134,6 @@ def get_response(env, status):
         elif check("えっ"):
             return "@%(id)s えっ"
 
-    keywords = chatter.get_keywords(IGNORE.sub("", status.text))
 
     if status.in_reply_to_screen_name == None or \
        status.in_reply_to_screen_name == SCREEN_NAME:
@@ -169,26 +159,26 @@ def get_response(env, status):
 
         if check("ちゃん"):
             return "@%(id)s 《ちゃん》は不要"
-        if check("リサ"):
-            if keywords:
+
+        elements = chatter.get_elements(IGNORE.sub("", status.text))
+        if elements:
+            assoc, score = env.association.extract(elements)
+    
+        if MENTION_REGEX.search(status.text) and elements:
+            if assoc:
                 return withimpression("@%(id)s " + \
-                                      getsentence(keywords,
-                                                  env.markovLtoR,
-                                                  env.markovRtoL), 1)
-
-    if MENTION_REGEX.search(status.text) or \
-       status.user.screen_name == "tetrabot":
-        if keywords:
+                                      chatter.greedygenerate(env.markovtable, assoc), 1)
+            else:
+                return withimpression("@%(id)s " + \
+                                      chatter.greedygenerate(env.markovtable, elements), 1)                
+        
+        if score >= RESPONSE_THRESHOLD:
             return withimpression("@%(id)s " + \
-                                           getsentence(keywords,
-                                                       env.markovLtoR,
-                                                       env.markovRtoL), 1)
+                                  chatter.greedygenerate(env.markovtable, assoc), 1)            
 
-
-    if status.in_reply_to_screen_name == SCREEN_NAME:
-        return withimpression(random.choice(["@%(id)s ……",
-                                             "@%(id)s ――",
-                                             "@%(id)s ……？"]),1)
+        if check("リサ"):
+            env.api.favorite(status.id)
+            return withimpression(None, 1)
 
 def respond(env, status):
     """Respond to specified status."""
@@ -243,3 +233,7 @@ def respond(env, status):
                       response.replace(chatter.END_SYMBOL,"") % context)
     if not status.user.protected and status.source != "twittbot.net":
         env.daemon.put(launcher.Trigger(), action.Study(status)) #学習させるタスクを追加
+    if status.in_reply_to_status_id:
+        target = env.api.status(status.in_reply_to_status_id)
+        env.association.learn(chatter.get_elements(target.text),
+                              chatter.get_elements(status.text))

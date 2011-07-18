@@ -8,6 +8,7 @@ import itertools
 import random
 import datetime
 import re
+import xml.sax.saxutils
 
 from pysocialbot import launcher
 from pysocialbot.twitter import userstream
@@ -228,9 +229,11 @@ def respond(env, status):
             env.conversation.append(status.user.screen_name)
         env.api.reply(status.id,
                       response.replace(chatter.END_SYMBOL,"") % context)
-    if not status.user.protected and status.source != "twittbot.net":
+
+    if not (status.user.protected or status.source in ["twittbot.net"]):
         env.daemon.put(launcher.Trigger(), action.Study(status)) #学習させるタスクを追加
+
     if status.in_reply_to_status_id:
         target = env.api.status(status.in_reply_to_status_id)
-        env.association.learn(chatter.get_elements(target.text),
-                              chatter.get_elements(status.text))
+        env.association.learn(chatter.get_elements(target.cleaned()),
+                              chatter.get_elements(status.cleaned()))

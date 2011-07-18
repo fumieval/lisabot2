@@ -101,7 +101,7 @@ class Study(launcher.Action):
     
     def __init__(self, status):
         launcher.Action.__init__(self)
-        self.text = xml.sax.saxutils.unescape(status.cleaned())
+        self.text = status.cleaned()
     
     def __call__(self, env):
         chatter.extend_table(env.markovtable, self.text)

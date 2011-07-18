@@ -18,8 +18,14 @@ def get_keywords(x):
     return keywords
 
 def get_elements(x):
+    keywords = []
+    for word, data in parse(x):
+        if data[0] not in ["助詞", "助動詞", "記号"] and word != "する":
+            keywords.append(word if data[6] == "*" else data[6])
+    return keywords
+
     return map(lambda xs: xs[1][6],
-               itertools.ifilter(lambda xs: xs[1][0] not in ["助詞", "助動詞", "記号"], parse(x)))
+               itertools.ifilter(lambda xs: xs[1][0] , parse(x)))
 
 def extend_markovtable(table, words):
     word0 = word1 = word2 = ""
@@ -80,19 +86,17 @@ def greedymarkov(keywords, table, word2, word1, word0):
     if candidate:
         result = map(lambda word: greedymarkov(filter(lambda x: x != word, keywords),
                                                table, word1, word0, word), candidate)
-        best = min(itertools.imap(lambda xs: xs[1], result))
-        final = filter(lambda xs: xs[1] == best, result)
-        if all(itertools.imap(isterminal, final)):
-            return [], len(keywords)
-        else:
-            return [word0] + random.choice(final)[0], best
     else:
-        result = greedymarkov(keywords, table, word1, word0,
-                              random.choice(table[word2][word1][word0]))
-        if isterminal(result[0]):
-            return [], len(keywords)
-        else:
-            return [word0] + result[0], result[1]
+        result = map(lambda word: greedymarkov(keywords, table, word1, word0, word),
+                     random.sample(table[word2][word1][word0],
+                                   min(len(table[word2][word1][word0]), len(keywords))))
+ 
+    best = min(itertools.imap(lambda xs: xs[1], result)) #残ったキーワードの最小値
+    final = filter(lambda xs: xs[1] == best, result) #最終的な解の候補
+    if all(itertools.imap(isterminal, final)):
+        return [], len(keywords) #解が全て終了記号の場合
+    else:
+        return [word0] + random.choice(final)[0], best
 
 def format_words(wordlist):
     flag = False
@@ -105,6 +109,7 @@ def format_words(wordlist):
         if word[0] == "#": result += " "
         flag = newflag
     return result
+
 
 def generate(LtoR, RtoL, keywords=None):
 

@@ -18,7 +18,8 @@ from lisabot2.settings import TZ_ACTIVITY
 
 IGNORE = re.compile("\.(@\w+ )+|http:\/\/(\w+|\.|\/)*|RT @\w+:?|@\w+")
 
-RT_REGEX = re.compile(r"RT @\w:?.*")
+RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
+REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
 RESPONSE_THRESHOLD = 3
@@ -78,8 +79,10 @@ def get_response(env, status):
         return random.choice(els[0])  
    
     check = lambda i: PATTERN[i].search(status.text)
+    isreply = bool(REPLY_REGEX.search(status.text))
+    ismentions = isreply or bool(MENTION_REGEX.search(status.text))
     
-    if status.in_reply_to_screen_name == SCREEN_NAME: #自分宛
+    if isreply: #自分宛
         if check("もしゃ") or check("もふ"):
             return choice_i([(15, ["@%(id)s きゃうん！",
                                    "@%(id)s きゃうん…",
@@ -129,17 +132,12 @@ def get_response(env, status):
             return withimpression("@%(id)s やあ", 1)
         elif check("PC"):
             return "@%(id)s Dvorak配列で、キートップに何も記されていないノートPC"
-        elif check("ほげ"):
-            return "@%(id)s ほげ"
-        elif check("えっ"):
-            return "@%(id)s えっ"
-
 
     if status.in_reply_to_screen_name == None or \
-       status.in_reply_to_screen_name == SCREEN_NAME:
+    status.in_reply_to_screen_name == "Lisa_math":
 
         #フィボナッチ・サインの判定
-        fib = lambda i:FIBONACCI_SIGN[i].search(status.text)
+        fib = lambda i: FIBONACCI_SIGN[i].search(status.text)
         if fib("dec"):
             return withimpression("@%(id)s 5", 2)
         elif fib("bin") or fib("bin3"):
@@ -160,25 +158,24 @@ def get_response(env, status):
         if check("ちゃん"):
             return "@%(id)s 《ちゃん》は不要"
 
-        elements = chatter.get_elements(IGNORE.sub("", status.text))
-        if elements:
-            assoc, score = env.association.extract(elements)
-    
-        if MENTION_REGEX.search(status.text) and elements:
-            if assoc:
-                return withimpression("@%(id)s " + \
-                                      chatter.greedygenerate(env.markovtable, assoc), 1)
-            else:
-                return withimpression("@%(id)s " + \
-                                      chatter.greedygenerate(env.markovtable, elements), 1)                
-        
-        if score >= RESPONSE_THRESHOLD:
-            return withimpression("@%(id)s " + \
-                                  chatter.greedygenerate(env.markovtable, assoc), 1)            
+    elements = chatter.get_elements(IGNORE.sub("", status.text))
+    if elements:
+        assoc, score = env.association.extract(elements, random.randint(2, 4))
+        keywords = chatter.get_keywords(IGNORE.sub("", status.text))
+        if ismentions and elements:
+            text = chatter.greedygenerate(env.markovtable, assoc + keywords)
+            if text:
+                return withimpression("@%(id)s " + text, 1)
+        else:
+            if status.in_reply_to_screen_name == None and score >= RESPONSE_THRESHOLD:
+                text = chatter.greedygenerate(env.markovtable, assoc + keywords)
+                if text:
+                    return withimpression("@%(id)s " + text, 1)
+         
 
-        if check("リサ"):
-            env.api.favorite(status.id)
-            return withimpression(None, 1)
+    if check("リサ"):
+        env.api.favorite(status.id)
+        return withimpression(None, 1)
 
 def respond(env, status):
     """Respond to specified status."""
@@ -197,7 +194,7 @@ def respond(env, status):
 
     if "#ping" in status.text:
         env.api.reply(status.id,
-                      "@%(id)s #pong %(now)s (#ping %(created_at)s)" %
+                      "@%(id)s #pong %(now)s ( #ping %(created_at)s)" %
                       context)
         return
 

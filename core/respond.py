@@ -23,7 +23,7 @@ RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
 REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
-RESPONSE_THRESHOLD = 3
+RESPONSE_THRESHOLD = 666
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -159,19 +159,19 @@ def get_response(env, status):
         if check("ちゃん"):
             return "@%(id)s 《ちゃん》は不要"
 
-    elements = chatter.get_elements(IGNORE.sub("", status.text))
-    if elements:
-        assoc, score = env.association.extract(elements, random.randint(2, 4))
-        keywords = chatter.get_keywords(IGNORE.sub("", status.text))
-        if ismentions and elements:
-            text = chatter.greedygenerate(env.markovtable, assoc + keywords)
-            if text:
-                return withimpression("@%(id)s " + text, 1)
-        else:
-            if status.in_reply_to_screen_name == None and score >= RESPONSE_THRESHOLD:
-                text = chatter.greedygenerate(env.markovtable, assoc + keywords)
+        elements = chatter.get_elements(status.cleaned())
+        if elements:
+            assoc, score = env.association.extract(elements, random.randint(2, 4))
+            #keywords = chatter.get_keywords(status.cleaned())
+            if ismentions:
+                text = chatter.greedygenerate(env.markovtable, assoc)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
+            else:
+                if status.in_reply_to_screen_name == None and score >= RESPONSE_THRESHOLD:
+                    text = chatter.greedygenerate(env.markovtable, assoc)
+                    if text:
+                        return withimpression("@%(id)s " + text, 1)
          
 
     if check("リサ"):
@@ -227,8 +227,7 @@ def respond(env, status):
     if response:
         if not status.user.screen_name in env.conversation:
             env.conversation.append(status.user.screen_name)
-        env.api.reply(status.id,
-                      response.replace(chatter.END_SYMBOL,"") % context)
+        env.api.reply(status.id, response % context)
 
     if not (status.user.protected or status.source in ["twittbot.net"]):
         env.daemon.put(launcher.Trigger(), action.Study(status)) #学習させるタスクを追加

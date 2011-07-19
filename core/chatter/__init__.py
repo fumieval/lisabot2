@@ -20,7 +20,7 @@ def get_keywords(x):
 def get_elements(x):
     keywords = []
     for word, data in parse(x):
-        if data[0] not in ["助詞", "助動詞", "記号"] and word != "する":
+        if data[0] not in ["助詞", "助動詞", "記号"] and data[6] != "する":
             keywords.append(word if data[6] == "*" else data[6])
     return keywords
 
@@ -78,19 +78,18 @@ def keywordchooser(keywords):
             return random.choice(table[word0][word1][word2])
     return f
 
-def greedymarkov(keywords, table, word2, word1, word0):
+def greedymarkov(keywords, table, word2, word1, word0, depth=16):
     """keywordに与えられた単語を最大限使用する"""
-    if word0 == END_SYMBOL:
+
+    if  depth == 0 or word0== END_SYMBOL:
         return [], len(keywords)
     candidate = filter(lambda w: w in keywords, table[word2][word1][word0])
     if candidate:
         result = map(lambda word: greedymarkov(filter(lambda x: x != word, keywords),
-                                               table, word1, word0, word), candidate)
+                                               table, word1, word0, word, depth - 1), candidate)
     else:
-        result = map(lambda word: greedymarkov(keywords, table, word1, word0, word),
-                     random.sample(table[word2][word1][word0],
-                                   min(len(table[word2][word1][word0]), len(keywords))))
- 
+        result = map(lambda word: greedymarkov(keywords, table, word1, word0, word, depth - 1), random.sample(table[word2][word1][word0],1))
+    
     best = min(itertools.imap(lambda xs: xs[1], result)) #残ったキーワードの最小値
     final = filter(lambda xs: xs[1] == best, result) #最終的な解の候補
     if all(itertools.imap(isterminal, final)):

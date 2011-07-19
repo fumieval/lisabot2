@@ -41,63 +41,35 @@ def extend_markovtable(table, words):
         word0, word1, word2 = word1, word2, word
             
 def extend_table(table, text):
+    """一方向にマルコフ連鎖の辞書を拡張する。"""
     extend_markovtable(table, [START_SYMBOL] * 3 + wakati(text) + [END_SYMBOL] * 3)
 
-def markov(table, start,
-           choice=lambda w, x, y: random.choice(w[x][y]),
-           before=lambda x: False, after=lambda x: False):
-    
-    r = []
-    
-    word0, word1, word2 = start
-    
-    while word0 in table and word1 in table[word0] and word2 in table[word0][word1]:
-        word0, word1, word2 = word1, word2, choice(table, word0, word1, word2)
-        
-        if before(word2) or isterminal(word2): break
-        
-        a = isAlphabetonly(word2)
-        if r and not a and r[-1] == " ": r.pop()
-        r.append(word2)
-        if a: r.append(" ") #アルファベットのみの場合はスペースを追加する
-        
-        if after(word2): break
-        
-    if r and r[-1] == " ": r.pop()
-    
-    return r
+def extend_table_both(ltor, rtol, text):
+    """双方向にマルコフ連鎖の辞書を拡張する。"""
+    words = wakati(text)
+    extend_markovtable(ltor, [START_SYMBOL] * 3 + words + [END_SYMBOL] * 3)
+    reverse(words)
+    extend_markovtable(rtol, [START_SYMBOL] * 3 + words + [END_SYMBOL] * 3)
 
-def keywordchooser(keywords):
-    def f(table, word0, word1, word2):
-        candidate = filter(lambda word: word in keywords, table[word0][word1][word2])
-        if candidate:
-            word = random.choice(candidate)
-            keywords.remove(word)
-            return word
-        else:
-            return random.choice(table[word0][word1][word2])
-    return f
-
-def greedymarkov(keywords, table, word2, word1, word0, depth=16):
-    """keywordに与えられた単語を最大限使用する"""
-
-    if  depth == 0 or word0== END_SYMBOL:
+def greedymarkov(keywords, table, word2, word1, word0, depth=64):
+    """可能ならばkeywordsの単語を使用して文章を生成する。"""
+    if word0 == END_SYMBOL or depth == 0:
         return [], len(keywords)
+
     candidate = filter(lambda w: w in keywords, table[word2][word1][word0])
     if candidate:
         result = map(lambda word: greedymarkov(filter(lambda x: x != word, keywords),
                                                table, word1, word0, word, depth - 1), candidate)
-    else:
-        result = map(lambda word: greedymarkov(keywords, table, word1, word0, word, depth - 1), random.sample(table[word2][word1][word0],1))
-    
-    best = min(itertools.imap(lambda xs: xs[1], result)) #残ったキーワードの最小値
-    final = filter(lambda xs: xs[1] == best, result) #最終的な解の候補
-    if all(itertools.imap(isterminal, final)):
-        return [], len(keywords) #解が全て終了記号の場合
-    else:
+        best = min(itertools.imap(lambda xs: xs[1], result)) #残ったキーワードの最小値
+        final = filter(lambda xs: xs[1] == best, result) #最終的な解の候補
         return [word0] + random.choice(final)[0], best
+    else:
+        result = greedymarkov(keywords, table, word1, word0,
+                              random.choice(table[word2][word1][word0]), depth - 1)
+        return [word0] + result[0], result[1]
 
 def format_words(wordlist):
+    """単語のリストから文章を作る。"""
     flag = False
     result = ""
     for word in wordlist:
@@ -109,48 +81,13 @@ def format_words(wordlist):
         flag = newflag
     return result
 
-
-def generate(LtoR, RtoL, keywords=None):
-
-    _ = itertools
-
-    if keywords:    
-        #起点
-    
-        lst = list(_.chain(*_.imap(lambda word: _.ifilter(lambda x: word == x,
-                                                          LtoR.keys()), keywords)))
-        
-        if lst:
-            word0 = random.choice(lst)
-            keywords_ = list(keywords)
-            chooser = keywordchooser(keywords_) #キーワードを元に次の候補を選択する関数
-        else:
-            word0 = random.choice(LtoR.keys())
-            chooser = lambda w, x, y, z: random.choice(w[x][y][z])
-    else:
-        word0 = random.choice(LtoR.keys())
-        chooser = lambda w, x, y, z: random.choice(w[x][y][z])
-
-    word1 = random.choice(LtoR[word0].keys())
-    word2 = random.choice(LtoR[word0][word1].keys())
-    result = []
-    result.extend(reversed(markov(RtoL, (word2, word1, word0), chooser))) #左方向に拡張
-    result.extend([word0, word1]) #基点
-    result.extend(markov(LtoR, (word0, word1, word2), chooser)) #右方向に拡張
-    
-    return ''.join(result)
-
-def greedygenerate(table, keywords=None):
+def greedygenerate(table, keywords):
     return format_words(greedymarkov(keywords, table,
                                      START_SYMBOL, START_SYMBOL, START_SYMBOL)[0])
-def test():
-    import cPickle as pickle
-    table = {}
-    while True:
-        text = raw_input("> ").decode("utf-8")
-        extend_markovtable(table, [START_SYMBOL] * 3 + wakati(text) + [END_SYMBOL] * 3)
-        print format_words(greedymarkov(get_keywords(text), table,
-                                        START_SYMBOL, START_SYMBOL, START_SYMBOL)[0])
+    
+def generate(ltor, rtol, origin, keywords): #実装待ち
+    """双方向マルコフ連鎖。originで指定したワードを可能ならば使用する。
+    パフォーマンスを損なわない範囲でkeywordsを使用する。"""
+    pass
+    
 
-if __name__ == "__main__":
-    test()

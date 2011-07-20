@@ -88,6 +88,9 @@ def greedygenerate(table, keywords):
 def generate(ltor, rtol, origin, keywords): #実装待ち
     """双方向マルコフ連鎖。originで指定したワードを可能ならば使用する。
     パフォーマンスを損なわない範囲でkeywordsを使用する。"""
-    pass
+    word0 = origin if origin in ltor else random.choice(ltor.keys())
+    word1 = random.choice(ltor[word0].keys())
+    word2 = random.choice(ltor[word0][word1].keys())
+        
     
 

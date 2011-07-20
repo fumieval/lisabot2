@@ -7,7 +7,7 @@ from pysocialbot.launcher import (dailysection, InDailyPeriod,
                                   DT)
 from lisabot2.core import action
 
-TZ_ACTIVITY = InDailyPeriod(dailysection(6, 30), dailysection(23, 0))
+TZ_ACTIVITY = InDailyPeriod(dailysection(6, 30), dailysection(23, 45))
 TZ_REMSLEEP = InDailyPeriod(dailysection(0, 0), dailysection(5, 30))
 
 TRIGGER = {TZ_ACTIVITY & Regular(5) & Randomly(0.0003): action.Tweet(),

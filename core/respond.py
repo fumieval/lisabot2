@@ -23,7 +23,7 @@ RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
 REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
-RESPONSE_THRESHOLD = 666
+RESPONSE_THRESHOLD = 3
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -168,7 +168,7 @@ def get_response(env, status):
                 if text:
                     return withimpression("@%(id)s " + text, 1)
             else:
-                if status.in_reply_to_screen_name == None and score >= RESPONSE_THRESHOLD:
+                if status.in_reply_to_screen_name == None and score >= len(elements) * RESPONSE_THRESHOLD:
                     text = chatter.greedygenerate(env.markovtable, assoc)
                     if text:
                         return withimpression("@%(id)s " + text, 1)

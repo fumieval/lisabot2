@@ -21,15 +21,13 @@ def wakati(x):
 def isterminal(word):
     return word == START_SYMBOL or word == END_SYMBOL
 
-def isSymbol(word):
+def issymbol(word):
     return word == "." or word == "。" or \
            word == "!" or word == "！" or \
            word == "?" or word == "？" or \
            word == START_SYMBOL or \
            word == END_SYMBOL
 
-def isAlphabetonly(string):
-    return all(itertools.imap(lambda x: ord(x) & 0x70 and ord(x) < 128, string))
 
 def ibranch(functions, *args, **kwargs):
     """

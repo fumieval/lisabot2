@@ -23,6 +23,7 @@ RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
 REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
+
 RESPONSE_THRESHOLD = 3
 
 class LisabotStreamHandler(userstream.StreamHandler):
@@ -227,7 +228,7 @@ def respond(env, status):
     if response:
         if not status.user.screen_name in env.conversation:
             env.conversation.append(status.user.screen_name)
-        env.api.reply(status.id, response % context)
+        env.api.reply(status.id, (response % context)[:140])
 
     if not (status.user.protected or status.source in ["twittbot.net"]):
         env.daemon.put(launcher.Trigger(), action.Study(status)) #学習させるタスクを追加

@@ -163,9 +163,9 @@ def get_response(env, status):
         elements = chatter.get_elements(status.cleaned())
         if elements:
             assoc, score = env.association.extract(elements, random.randint(2, 4))
-            #keywords = chatter.get_keywords(status.cleaned())
             if ismentions:
-                text = chatter.greedygenerate(env.markovtable, assoc)
+                keywords = chatter.get_keywords(status.cleaned())
+                text = chatter.greedygenerate(env.markovtable, assoc + keywords)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
             else:

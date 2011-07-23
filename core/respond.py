@@ -24,7 +24,7 @@ REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
 
-RESPONSE_THRESHOLD = 3
+RESPONSE_THRESHOLD = 4
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -226,7 +226,8 @@ def respond(env, status):
 
     response = get_response(env, status)
     if response:
-        if not status.user.screen_name in env.conversation:
+        if not status.user.screen_name in env.conversation and \
+           status.in_reply_to_screen_name == "Lisa_math":
             env.conversation.append(status.user.screen_name)
         env.api.reply(status.id, (response % context)[:140])
 

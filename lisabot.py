@@ -65,7 +65,7 @@ def main():
     
     #bot.env.markovtable = {}
     bot.env.markovtable = pickle.load(open(OPTIONS.dictfile, "r"))
-
+    bot.env.impression = bot.env.impression.asdict()
     bot.env.association = Association()
     bot.env.association.load(open(OPTIONS.dictfile + ".assoc", "r"))
     if OPTIONS.debug:

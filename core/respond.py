@@ -54,14 +54,14 @@ def get_response(env, status):
     """Get response message to specified status."""
     
     if 'retweeted_status' in status.__dict__:
-        return #リツイートには反応しない
+        return
 
-    if not status.user.id in env.impression.__dict__: #印象が未定義の場合初期化
-        env.impression.__dict__[status.user.id] = 0
+    if not status.user.id in env.impression:
+        env.impression[status.user.id] = 0
     
     def increment_impression(value):
         """increment the impression."""
-        env.impression.__dict__[status.user.id] += value
+        env.impression[status.user.id] += value
     
     def withimpression(value, increment=0):
         """return value with changing impression."""
@@ -71,7 +71,7 @@ def get_response(env, status):
     def choice_i(data, els):
         """choice response by impression."""
         for i in data:
-            if env.impression.__dict__[status.user.id] >= i[0]:
+            if env.impression[status.user.id] >= i[0]:
                 if len(i) == 3:
                     increment_impression(i[2])
                 return random.choice(i[1])
@@ -84,7 +84,7 @@ def get_response(env, status):
     isreply = bool(REPLY_REGEX.search(status.text))
     ismentions = isreply or bool(MENTION_REGEX.search(status.text))
     
-    if isreply: #自分宛
+    if isreply:
         if check("もしゃ") or check("もふ"):
             return choice_i([(15, ["@%(id)s きゃうん！",
                                    "@%(id)s きゃうん…",
@@ -130,8 +130,11 @@ def get_response(env, status):
             return "@%(id)s UserStreamを使っているから"
         elif check("rm"):
             return random.choice(["@%(id)s Deny","@%(id)s Permission Denied"])
-        elif check("やあ"):
-            return withimpression("@%(id)s やあ", 1)
+        elif re.search("虚数単位[iｉ]以外のアイなんてあるの[？\?]|アイって[？\?]", status.text):
+            return random.choice(["@%(id)s Iterationのi",
+                                  "@%(id)s Indexのi",
+                                  "@%(id)s Integerのi"])
+        
         elif check("PC"):
             return "@%(id)s Dvorak配列で、キートップに何も記されていないノートPC"
 
@@ -173,7 +176,6 @@ def get_response(env, status):
                     text = chatter.greedygenerate(env.markovtable, assoc)
                     if text:
                         return withimpression("@%(id)s " + text, 1)
-         
 
     if check("リサ"):
         env.api.favorite(status.id)
@@ -182,10 +184,10 @@ def get_response(env, status):
 def respond(env, status):
     """Respond to specified status."""
     if status.user.screen_name == SCREEN_NAME:
-        return #自分の発言は無視
+        return #Ignore the status that created by oneself
     
-    now = datetime.datetime.utcnow() #現在の時間を取得
-    status.text = RT_REGEX.sub("", status.text).strip() #RTを取り除いた本文を取得
+    now = datetime.datetime.utcnow()
+    status.text = RT_REGEX.sub("", status.text).strip()
     context = {"id": status.user.screen_name,
                "name": status.user.name,
                "text": status.text,
@@ -201,27 +203,18 @@ def respond(env, status):
         return
 
     if not TZ_ACTIVITY(env):
-        return #寝ている間は反応しない
+        return #The bot doesn't respond during It's sleeping
     
     if "下校時間です" in status.text:
         if status.user.screen_name == "mizutani_j_bot":
             if env.conversation:
-                env.api.post(".%s 《下校》" %
-                         reduce(lambda a, b:a + " " + b
-                                if len(a + b) <= 135 else "",
-                                itertools.imap(lambda x: "@" + x,
-                                               env.conversation)))
+                env.api.post(".%s 《下校》" % \
+                reduce(lambda a, b: a + " " + b if len(a + b) <= 134 else "",
+                       itertools.imap(lambda x: "@" + x, env.conversation)))
             else:
                 env.api.post("帰る")
         else:
             env.api.reply(status.id, "@%(id)s えっ" % context)
-        return
-
-    if re.search("虚数単位[iｉ]以外のアイなんてあるの[？\?]|アイって[？\?]", status.text):
-        env.api.reply(status.id,
-                      random.choice(["@%(id)s Iterationのi",
-                                     "@%(id)s Indexのi",
-                                     "@%(id)s Integerのi"]) % context)
         return
 
     response = get_response(env, status)
@@ -232,7 +225,7 @@ def respond(env, status):
         env.api.reply(status.id, (response % context)[:140])
 
     if not (status.user.protected or status.source in ["twittbot.net"]):
-        env.daemon.put(launcher.Trigger(), action.Study(status)) #学習させるタスクを追加
+        env.daemon.put(launcher.Trigger(), action.Study(status))
 
     if status.in_reply_to_status_id:
         target = env.api.status(status.in_reply_to_status_id)

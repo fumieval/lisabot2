@@ -1,11 +1,12 @@
 # coding: utf-8
 """
-Lisabot 2.3.0 chatter
+Lisabot 2.4.0 chatter
 """
 from __future__ import unicode_literals
+
+import itertools
 import random
 import string
-import itertools
 
 from lisabot2.core.chatter.util import *
 
@@ -25,28 +26,28 @@ def get_elements(x):
     return keywords
 
 def extend_markovtable(table, words):
-    word0 = word1 = word2 = ""
-    for word in itertools.ifilter(None, words):
-        if word0 and word1 and word2:
-            if not word0 in table:
-                table[word0] = {}
-            if not word1 in table[word0]:
-                table[word0][word1] = {}
-            if not word2 in table[word0][word1]:
-                table[word0][word1][word2] = []
-            table[word0][word1][word2].append(word)
+    word0 = word1 = word2 = START_SYMBOL
+    for word in itertools.ifilter(None, words + [END_SYMBOL]):
+        if not word0 in table:
+            table[word0] = {}
+        if not word1 in table[word0]:
+            table[word0][word1] = {}
+        if not word2 in table[word0][word1]:
+            table[word0][word1][word2] = []
+        table[word0][word1][word2].append(word)
         word0, word1, word2 = word1, word2, word
             
 def extend_table(table, text):
-    """一方向にマルコフ連鎖の辞書を拡張する。"""
-    extend_markovtable(table, [START_SYMBOL] * 3 + wakati(text) + [END_SYMBOL])
+    """一方向にマルコフ連鎖の辞書を拡張する。
+    todo: extend_markovtableと統合"""
+    extend_markovtable(table, wakati(text))
 
 def extend_table_both(ltor, rtol, text):
     """双方向にマルコフ連鎖の辞書を拡張する。"""
     words = wakati(text)
-    extend_markovtable(ltor, [START_SYMBOL] * 3 + words + [END_SYMBOL])
+    extend_markovtable(ltor, words)
     words.reverse()
-    extend_markovtable(rtol, [START_SYMBOL] * 3 + words + [END_SYMBOL])
+    extend_markovtable(rtol, words)
 
 def greedymarkov(keywords, table, word2, word1, word0, depth=64):
     """可能ならばkeywordsの単語を使用して文章を生成する。"""
@@ -89,6 +90,6 @@ def generate(ltor, rtol, origin=None, keywords=[]):
     """Not implemented
     双方向マルコフ連鎖。originで指定したワードを可能ならば使用する。
     パフォーマンスを損なわない範囲でkeywordsを使用する。"""
-    word0 = origin and random.choice(ltor.keys())
+    word0 = origin or random.choice(ltor.keys())
     word1 = random.choice(ltor[word0].keys())
     word2 = random.choice(ltor[word0][word1].keys())

@@ -8,21 +8,17 @@ import itertools
 import random
 import datetime
 import re
-import xml.sax.saxutils
 
-from pysocialbot import launcher
+from pysocialbot import trigger
 from pysocialbot.twitter import userstream
 
 from lisabot2.core.vocab import PATTERN, FIBONACCI_SIGN
 from lisabot2.core import chatter, action, vocab
-from lisabot2.settings import TZ_ACTIVITY
-
-IGNORE = re.compile("\.(@\w+ )+|http:\/\/(\w+|\.|\/)*|RT @\w+:?|@\w+")
+from lisabot2.settings import TZ_ACTIVITY, SCREEN_NAME
 
 RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
 REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
-SCREEN_NAME = "Lisa_math"
 
 RESPONSE_THRESHOLD = 5
 
@@ -39,7 +35,7 @@ class LisabotStreamHandler(userstream.StreamHandler):
         respond(self.env, status)
 
     def follow(self, source):
-        if source.screen_name == "Lisa_math":
+        if source.screen_name == SCREEN_NAME:
             return
         print "New Follower: @%s" % source.screen_name
         self.api.follow(source.id)
@@ -79,11 +75,14 @@ def get_response(env, status):
         if len(els) == 2:
             increment_impression(els[1])
         return random.choice(els[0])  
-   
-    check = lambda i: PATTERN[i].search(status.text)
+
+    def check(pattern):
+        return PATTERN[pattern].search(status.text)
+
     isreply = bool(REPLY_REGEX.search(status.text))
     ismentions = isreply or bool(MENTION_REGEX.search(status.text))
     
+    #todo: これらの汚い条件文をpysocialbot.botlib.patternに置き換える
     if isreply:
         if check("もしゃ") or check("もふ"):
             return choice_i([(15, ["@%(id)s きゃうん！",
@@ -130,7 +129,7 @@ def get_response(env, status):
             return "@%(id)s UserStreamを使っているから"
         elif check("rm"):
             return random.choice(["@%(id)s Deny","@%(id)s Permission Denied"])
-        elif re.search("虚数単位[iｉ]以外のアイなんてあるの[？\?]|アイって[？\?]", status.text):
+        elif check("アイ"):
             return random.choice(["@%(id)s Iterationのi",
                                   "@%(id)s Indexのi",
                                   "@%(id)s Integerのi"])
@@ -139,7 +138,7 @@ def get_response(env, status):
             return "@%(id)s Dvorak配列で、キートップに何も記されていないノートPC"
 
     if status.in_reply_to_screen_name == None or \
-    status.in_reply_to_screen_name == "Lisa_math":
+    status.in_reply_to_screen_name == SCREEN_NAME:
 
         #フィボナッチ・サインの判定
         fib = lambda i: FIBONACCI_SIGN[i].search(status.text)
@@ -166,13 +165,14 @@ def get_response(env, status):
         elements = chatter.get_elements(status.cleaned())
         if elements:
             assoc, score = env.association.extract(elements, random.randint(2, 4))
-            if ismentions:
+            if ismentions: #基本的にメンションには反応する
                 keywords = chatter.get_keywords(status.cleaned())
                 text = chatter.greedygenerate(env.markovtable, assoc + keywords)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
             else:
-                if status.in_reply_to_screen_name == None and score >= len(elements) * RESPONSE_THRESHOLD:
+                if status.in_reply_to_screen_name == None and \
+                score >= len(elements) * RESPONSE_THRESHOLD:
                     text = chatter.greedygenerate(env.markovtable, assoc)
                     if text:
                         return withimpression("@%(id)s " + text, 1)
@@ -207,27 +207,28 @@ def respond(env, status):
     
     if "下校時間です" in status.text:
         if status.user.screen_name == "mizutani_j_bot":
-            if env.conversation:
+            if env.conversation: #今日会話した人に下校を知らせる
                 env.api.post(".%s 《下校》" % \
                 reduce(lambda a, b: a + " " + b if len(a + b) <= 134 else "",
                        itertools.imap(lambda x: "@" + x, env.conversation)))
-            else:
+            else: #ぼっち
                 env.api.post("帰る")
-        else:
+        else: #お前瑞谷女史じゃないだろ
             env.api.reply(status.id, "@%(id)s えっ" % context)
         return
 
     response = get_response(env, status)
     if response:
         if not status.user.screen_name in env.conversation and \
-           status.in_reply_to_screen_name == "Lisa_math":
+           status.in_reply_to_screen_name == SCREEN_NAME:
             env.conversation.append(status.user.screen_name)
         env.api.reply(status.id, (response % context)[:140])
 
     if not (status.user.protected or status.source in ["twittbot.net"]):
-        env.daemon.put(launcher.Trigger(), action.Study(status))
+        #twittbotの発言も学習してほしい？　だ が 断 る
+        env.daemon.push(trigger.Trigger(), action.Study(status))
 
-    if status.in_reply_to_status_id:
+    if status.in_reply_to_status_id: #会話を学習する
         target = env.api.status(status.in_reply_to_status_id)
         env.association.learn(chatter.get_elements(target.cleaned()),
                               chatter.get_elements(status.cleaned()))

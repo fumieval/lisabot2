@@ -14,7 +14,7 @@ def get_keywords(x):
     """Get keyword in sentence."""
     keywords = []
     for word, data in parse(x):
-        if data[0] == "感動詞" or data[0] == "名詞" and data[1] != "非自立" and data[1] != "代名詞":
+        if data[0] in ["感動詞", "名詞"] and data[1] not in ["非自立", "代名詞"]:
             keywords.append(word)
     return keywords
 

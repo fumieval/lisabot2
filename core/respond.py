@@ -24,7 +24,7 @@ REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 SCREEN_NAME = "Lisa_math"
 
-RESPONSE_THRESHOLD = 4
+RESPONSE_THRESHOLD = 5
 
 class LisabotStreamHandler(userstream.StreamHandler):
     

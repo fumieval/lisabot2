@@ -10,19 +10,19 @@ import string
 
 from lisabot2.core.chatter.util import *
 
-def get_keywords(x):
+def getkeywords(x):
     """Get keyword in sentence."""
     keywords = []
     for word, data in parse(x):
-        if data[0] == "感動詞" or data[0] == "名詞" and data[1] != "非自立" and data[1] != "代名詞":
+        if data[0] in ["感動詞", "名詞"] and data[1] not in ["非自立", "代名詞"]:
             keywords.append(word)
     return keywords
 
-def get_elements(x):
+def getelements(x):
     keywords = []
     for word, data in parse(x):
         if data[0] not in ["助詞", "助動詞", "記号"] and data[6] != "する":
-            keywords.append(word if data[6] == "*" else data[6])
+            keywords.append(word)
     return keywords
 
 def extend_markovtable(table, words):

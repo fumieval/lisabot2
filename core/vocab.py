@@ -36,6 +36,7 @@ PATTERN = {"もしゃ":re.compile("もしゃもしゃ|モシャモシャ"),
            "おはよう":re.compile("おはよう[！。ー$][^が]*|お早う[！。][^が]*"),
            "おやすみ":re.compile("(お|御)(やす|休)み[！。ー]?。?$|寝るまーす"),
            "聞きかじった単語を言っただけか":re.compile(r"聞き(かじった|齧った|囓った)(単語|言葉)を言っただけか"),
+           "アイ": re.compile(r"虚数単位[iｉ]以外のアイなんてあるの[？\?]|アイって[？\?]"),
            "ぬるぽ": re.compile("NPE|[Nn]ull[Pp]ointer([Ee]xception|[Aa]ssignment)|ぬるぽ|NULLPO|Nullpo|NullPo|nullpo"),
            "5":re.compile("5$|101$"),
            }

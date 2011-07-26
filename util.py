@@ -5,7 +5,6 @@ lisabot2 utility
 import os
 import optparse
 
-
 PATH = os.path.abspath(os.path.dirname(__file__))
 
 def getoptions():

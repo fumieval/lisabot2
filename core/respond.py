@@ -161,6 +161,7 @@ def get_response(env, status):
             return withimpression("@%(id)s ご", 2)
 
         if check("ちゃん"):
+            env.api.favorite(status.id)
             return "@%(id)s 《ちゃん》は不要"
 
         elements = chatter.get_elements(status.cleaned())
@@ -172,7 +173,7 @@ def get_response(env, status):
                 if text:
                     return withimpression("@%(id)s " + text, 1)
             else:
-                if status.in_reply_to_screen_name == None and score >= len(elements) * RESPONSE_THRESHOLD:
+                if status.user.screen_name != "yuagmum" and status.in_reply_to_screen_name == None and score >= len(elements) * RESPONSE_THRESHOLD:
                     text = chatter.greedygenerate(env.markovtable, assoc)
                     if text:
                         return withimpression("@%(id)s " + text, 1)

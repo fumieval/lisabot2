@@ -88,7 +88,7 @@ def main():
         try:
             bot.run()
         except KeyboardInterrupt:
-            print(dumpdata(bot.env))
+            print(dump(bot.env))
     else:
         with daemontools.daemoncontext(OPTIONS.pidfile,
                                        OPTIONS.logfile,

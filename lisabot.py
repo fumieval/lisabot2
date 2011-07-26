@@ -60,7 +60,7 @@ def main():
     bot.trigger[Hourly(DT(minutes=55))] = Call(dump)
     
     bot.reset()
-    attempt(lambda: bot.load(open(OPTIONS.statefile, "r")), IOError)
+    #attempt(lambda: bot.load(open(OPTIONS.statefile, "r")), IOError)
     
     bot.env.impression = bot.env.impression.asdict() #PySocialBot 0.3.0に移行したら消す
     bot.env.conversation_count = {}
@@ -71,7 +71,7 @@ def main():
         bot.env.markovtable = {}
     
     assoc = Association()
-    attempt(lambda: assoc.load(open(OPTIONS.dictfile + ".assoc", "r")), IOError)
+    #attempt(lambda: assoc.load(open(OPTIONS.dictfile + ".assoc", "r")), IOError)
     bot.env.association = assoc
 
     if OPTIONS.debug:

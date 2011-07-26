@@ -161,6 +161,7 @@ def get_response(env, status):
             return withimpression("@%(id)s ご", 2)
 
         if check("ちゃん"):
+            env.api.favorite(status.id)
             return "@%(id)s 《ちゃん》は不要"
 
         elements = chatter.getelements(status.cleaned())

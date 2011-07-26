@@ -32,17 +32,18 @@ class Study(Action):
     
     def __init__(self, status):
         Action.__init__(self)
+        self.status = status
         self.text = status.cleaned()
     
     def __call__(self, env):
-        if not (status.user.protected or status.source in ["twittbot.net"]):
+        if not (self.status.user.protected or self.status.source in ["twittbot.net"]):
             #twittbotの発言も学習してほしい？　だ が 断 る
             chatter.extend_table(env.markovtable, self.text)
         
-        if status.in_reply_to_status_id: #会話を学習する
-            target = env.api.status(status.in_reply_to_status_id)
+        if self.status.in_reply_to_status_id: #会話を学習する
+            target = env.api.status(self.status.in_reply_to_status_id)
             env.association.learn(enumerate(chatter.getelements(target.cleaned())),
-                                  enumerate(chatter.getelements(status.cleaned())))
+                                  enumerate(chatter.getelements(self.text)))
 
         return True
     

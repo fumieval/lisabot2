@@ -36,17 +36,6 @@ def dump(env):
         
     return "Dumped at %s, %s" % (OPTIONS.envfile, OPTIONS.statefile)
 
-def createbot(env, screen_name, triggers, handler):
-    """Create minimal twitter-bot using UserStream."""
-    bot = Daemon(env)
-    bot.trigger = triggers
-
-    bot.env.api = twitter.Api(screen_name)
-    bot.env.stream = UserStream(bot.env.api, handler(bot.env))
-    
-    bot.hooks.append(lambda env: env.stream.start())
-    return bot
-
 def main():
     """run lisabot.
     1.環境変数を読み込む
@@ -74,6 +63,7 @@ def main():
     attempt(lambda: bot.load(open(OPTIONS.statefile, "r")), IOError)
     
     bot.env.impression = bot.env.impression.asdict() #PySocialBot 0.3.0に移行したら消す
+    bot.env.conversation_count = {}
 
     try:
         bot.env.markovtable = pickle.load(open(OPTIONS.dictfile, "r"))

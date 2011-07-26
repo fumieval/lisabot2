@@ -21,6 +21,7 @@ REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 
 RESPONSE_THRESHOLD = 5
+CONVERSATION_LIMIT = 16
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -207,6 +208,15 @@ def respond(env, status):
     if not TZ_ACTIVITY(env):
         return #The bot doesn't respond during It's sleeping
     
+    if status.in_reply_to_status_id:
+        if status.user.id not in env.conversation_count:
+            env.conversation_count[status.user.id] = 0
+        env.conversation_count[status.user.id] += 1
+
+        if env.conversation_count[status.user.id] >= CONVERSATION_LIMIT:
+            del env.conversation_count[status.user.id]
+            return
+
     if "下校時間です" in status.text:
         if status.user.screen_name == "mizutani_j_bot":
             if env.conversation: #今日会話した人に下校を知らせる

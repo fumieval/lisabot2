@@ -162,18 +162,20 @@ def get_response(env, status):
         if check("ちゃん"):
             return "@%(id)s 《ちゃん》は不要"
 
-        elements = chatter.get_elements(status.cleaned())
+        elements = chatter.getelements(status.cleaned())
         if elements:
-            assoc, score = env.association.extract(elements, random.randint(2, 4))
+            assoc, score = env.association.extract(elements, random.randint(3, 6))
+            assoc = map(lambda x: x[0], assoc)
             if ismentions: #基本的にメンションには反応する
-                keywords = chatter.get_keywords(status.cleaned())
+                keywords = chatter.getkeywords(status.cleaned())
                 text = chatter.greedygenerate(env.markovtable, assoc + keywords)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
             else:
                 if status.in_reply_to_screen_name == None and \
                 score >= len(elements) * RESPONSE_THRESHOLD:
-                    text = chatter.greedygenerate(env.markovtable, assoc)
+                    keywords = chatter.getkeywords(status.cleaned())
+                    text = chatter.greedygenerate(env.markovtable, assoc + keywords)
                     if text:
                         return withimpression("@%(id)s " + text, 1)
 
@@ -224,11 +226,4 @@ def respond(env, status):
             env.conversation.append(status.user.screen_name)
         env.api.reply(status.id, (response % context)[:140])
 
-    if not (status.user.protected or status.source in ["twittbot.net"]):
-        #twittbotの発言も学習してほしい？　だ が 断 る
-        env.daemon.push(trigger.Trigger(), action.Study(status))
-
-    if status.in_reply_to_status_id: #会話を学習する
-        target = env.api.status(status.in_reply_to_status_id)
-        env.association.learn(chatter.get_elements(target.cleaned()),
-                              chatter.get_elements(status.cleaned()))
+    env.daemon.push(trigger.Trigger(), action.Study(status))

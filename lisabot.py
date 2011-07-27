@@ -70,7 +70,7 @@ def main():
         bot.env.markovtable = {}
     
     assoc = Association()
-    #attempt(lambda: assoc.load(open(OPTIONS.dictfile + ".assoc", "r")), IOError)
+    attempt(lambda: assoc.load(open(OPTIONS.dictfile + ".assoc", "r")), IOError)
     bot.env.association = assoc
 
     if OPTIONS.debug:

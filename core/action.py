@@ -89,6 +89,7 @@ def poststat(env):
     
 def managefriends(env):
     """Manage following. todo: Report as Spam"""
+    return True
     env.api.updatefriends()
     def follow(i):
         source = env.api.follow(i)

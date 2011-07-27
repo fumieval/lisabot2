@@ -20,7 +20,7 @@ RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
 REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 
-RESPONSE_THRESHOLD = 5
+RESPONSE_THRESHOLD = 3
 CONVERSATION_LIMIT = 16
 
 class LisabotStreamHandler(userstream.StreamHandler):

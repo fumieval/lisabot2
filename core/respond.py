@@ -210,12 +210,14 @@ def respond(env, status):
         return #The bot doesn't respond during It's sleeping
     
     if status.in_reply_to_status_id:
-        if status.user.id not in env.conversation_count:
-            env.conversation_count[status.user.id] = 0
-        env.conversation_count[status.user.id] += 1
+        if status.id in env.conversation_count:
+            env.conversation_count[status.id] = env.conversation_count[status.in_reply_to_status_id] + 1
+            del env.conversation_count[status.in_reply_to_status_id]
+        else:
+            env.conversation_count[status.id] = 0
 
-        if env.conversation_count[status.user.id] >= CONVERSATION_LIMIT:
-            del env.conversation_count[status.user.id]
+        if env.conversation_count[status.id] >= CONVERSATION_LIMIT:
+            del env.conversation_count[status.id]
             return
 
     if "下校時間です" in status.text:

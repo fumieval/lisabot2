@@ -17,8 +17,5 @@ param = {"screen_name": "Lisa_math",
          "PIDFILE": os.path.join(RUNPATH, "lisabot.pid")
          }
 
-def validate(argc, param):
-    print "Step 1: Calculate Code Score"
-
 if __name__ == "__main__":
     management.execute_manager(param, daemontools.DAEMONTOOLS_COMMAND)

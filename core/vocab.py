@@ -39,6 +39,7 @@ PATTERN = {"もしゃ":re.compile("もしゃもしゃ|モシャモシャ"),
            "アイ": re.compile(r"虚数単位[iｉ]以外のアイなんてあるの[？\?]|アイって[？\?]"),
            "ぬるぽ": re.compile("NPE|[Nn]ull[Pp]ointer([Ee]xception|[Aa]ssignment)|ぬるぽ|NULLPO|Nullpo|NullPo|nullpo"),
            "5":re.compile("5$|101$"),
+           "NagatoBot_End": re.compile("参考になった|……そう|考慮に値する情報として処理させてもらう|面白い人"),
            }
 
 FIBONACCI_SIGN = {"dec":re.compile(r"(1|１)[\s,\.、。]+(1|１)[\s,\.、。]+(2|２)[\s,\.、。]+(3|３)[\s,\.、。]*"),

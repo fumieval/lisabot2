@@ -107,3 +107,18 @@ def reset(env):
     """reset daily variables"""
     env.conversation = []
     return True
+
+def dump(env):    
+    """Save Daemon Data."""
+    data = {}
+    data["status_count"] = env.status_count
+    data["impression"] = env.impression
+    data["conversation"] = env.conversation
+
+    pickle.dump(data, open(env.param["ENV_PATH"], "w"))
+    env.daemon.dump(open(env.param["STATE_PATH"], "w"))
+    
+    pickle.dump(env.markovtable, open(env.param["DICTIONARY_PATH"], "w"))
+    env.association.dump(open(env.param["ASSOCIATION_PATH"], "w"))
+
+    return "Dumped at %s, %s" % (env.param["ENV_PATH"], env.param["STATE_PATH"])

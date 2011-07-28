@@ -41,7 +41,11 @@ def getoptions():
                       default=os.path.join(PATH, "var/state.dump"))
     
     parser.add_option("-d", "--debug", action="store_true", dest="debug",
-                      help="don't run as daemon",
+                      help="don't run as a daemon",
+                      default=False)
+
+    parser.add_option("-m", "--managed", action="store_true", dest="managed",
+                      help="run bot controller",
                       default=False)
     
     return parser.parse_args()

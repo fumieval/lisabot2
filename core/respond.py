@@ -137,6 +137,9 @@ def get_response(env, status):
         
         elif check("PC"):
             return "@%(id)s Dvorak配列で、キートップに何も記されていないノートPC"
+        
+        elif check("NagatoBot_End"):
+            return None
 
     if status.in_reply_to_screen_name == None or \
     status.in_reply_to_screen_name == SCREEN_NAME:

@@ -8,33 +8,12 @@ try:
 except ImportError:
     import pickle
 
-from pysocialbot import daemontools, twitter
-from pysocialbot.action import Call
-from pysocialbot.botlib.association import Association
-from pysocialbot.prototype import bot_twitter_userstream
-from pysocialbot.struct import Object
-from pysocialbot.trigger import Hourly, DT
-from pysocialbot.util import attempt
+from pysocialbot import daemontools
 
 from lisabot2 import util
-from lisabot2.settings import TRIGGER, SCREEN_NAME
-from lisabot2.core.respond import LisabotStreamHandler
+from lisabot2.settings import DEFAULT_PARAM
 
-OPTIONS, ARGS = util.getoptions()
-
-def dump(env):    
-    """Save Daemon Data."""
-    data = {}
-    data["status_count"] = env.status_count
-    data["impression"] = env.impression
-    data["conversation"] = env.conversation
-
-    pickle.dump(data, open(OPTIONS.envfile, "w"))
-    pickle.dump(env.markovtable, open(OPTIONS.dictfile, "w"))
-    env.association.dump(open(OPTIONS.dictfile + ".assoc", "w"))
-    env.daemon.dump(open(OPTIONS.statefile, "w"))
-        
-    return "Dumped at %s, %s" % (OPTIONS.envfile, OPTIONS.statefile)
+import lisabot2.controller
 
 def main():
     """run lisabot.
@@ -46,43 +25,24 @@ def main():
     6.連想記憶の読み込み
     7.実行
     """
+    options, args = util.getoptions()
     
-    try:
-        env = Object(pickle.load(open(OPTIONS.envfile, "r")))
-    except IOError:
-        env = Object()
-    
-    bot = bot_twitter_userstream(env,
-                                 SCREEN_NAME,
-                                 TRIGGER,
-                                 LisabotStreamHandler)
-
-    bot.trigger[Hourly(DT(minutes=55))] = Call(dump)
-    
-    bot.reset()
-    attempt(lambda: bot.load(open(OPTIONS.statefile, "r")), IOError)
-    
-    bot.env.conversation_count = {}
-
-    try:
-        bot.env.markovtable = pickle.load(open(OPTIONS.dictfile, "r"))
-    except IOError:
-        bot.env.markovtable = {}
-    
-    assoc = Association()
-    attempt(lambda: assoc.load(open(OPTIONS.dictfile + ".assoc", "r")), IOError)
-    bot.env.association = assoc
-
-    if OPTIONS.debug:
-        try:
-            bot.run()
-        except KeyboardInterrupt:
-            print(dump(bot.env))
+    if options.managed:
+        bot = lisabot2.controller.create(DEFAULT_PARAM)
+        lisabot2.controller.LisabotController(bot).start()
+        bot.run()
     else:
-        with daemontools.daemoncontext(OPTIONS.pidfile,
-                                       OPTIONS.logfile,
-                                       OPTIONS.errfile):
-            bot.run()
+        if OPTIONS.debug:
+            bot.debug = True
+            try:
+                bot.run()
+            except KeyboardInterrupt:
+                print(action.dump(bot.env))
+        else:
+            with daemontools.daemoncontext(OPTIONS.pidfile,
+                                           OPTIONS.logfile,
+                                           OPTIONS.errfile):
+                bot.run()
 
 if __name__ == "__main__":
     main()

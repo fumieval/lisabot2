@@ -167,7 +167,7 @@ def get_response(env, status):
         elements = chatter.getelements(status.cleaned())
         if elements:
             assoc, score = env.association.extract(elements, random.randint(3, 6))
-            assoc = map(lambda x: x[0], assoc)
+            assoc = map(lambda x: x[1], assoc)
             if ismentions: #基本的にメンションには反応する
                 keywords = chatter.getkeywords(status.cleaned())
                 text = chatter.greedygenerate(env.markovtable, assoc + keywords)

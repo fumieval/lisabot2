@@ -12,6 +12,8 @@ from pysocialbot.action import Action
 
 from lisabot2.core import vocab, chatter
 
+IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet"]
+
 class Post(Action):
     
     """Post specified text."""
@@ -36,7 +38,7 @@ class Study(Action):
         self.text = status.cleaned()
     
     def __call__(self, env):
-        if not (self.status.user.protected or self.status.source in ["twittbot.net"]):
+        if not (self.status.user.protected or self.status.source in IGNORE_SOURCE):
             #twittbotの発言も学習してほしい？　だ が 断 る
             chatter.extend_table(env.markovtable, self.text)
         

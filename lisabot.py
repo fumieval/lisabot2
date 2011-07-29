@@ -3,10 +3,10 @@
 """
 Lisabot controller
 """
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+
+import traceback
+import signal
+import sys
 
 from pysocialbot import daemontools
 
@@ -28,8 +28,18 @@ def main():
     options, args = util.getoptions()
     bot = lisabot2.controller.create(DEFAULT_PARAM)
     if options.managed:
-        lisabot2.controller.LisabotController(bot).start()
-        bot.run()
+        def handler(signum, frame):
+            print >> sys.stdout, "Terminating stdout"
+            print >> sys.stderr, "Terminating stderr"
+        signal.signal(signal.SIGTERM, handler)
+        try:
+            bot = lisabot2.controller.create(DEFAULT_PARAM)
+            lisabot2.controller.LisabotController(bot).start()
+            bot.run()
+        except:
+            print >> sys.stderr, "##START##"
+            traceback.print_last()
+            print >> sys.stderr, "##END##"
     else:
         if options.debug:
             #bot.debug = True

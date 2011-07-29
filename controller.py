@@ -27,11 +27,16 @@ class LisabotController(threading.Thread):
         
     def run(self):
         for line in sys.stdin:
-            if self.bot.is_alive():
+            if not self.bot.is_alive():
                 print("The bot is not aliving")
             command = line.split()
             if command[0] == "do":
-                print(repr(self.bot.env.api.post(getattr(action, command[1])(self.bot.env))))
+                try:
+                    print(repr(self.bot.env.api.post(getattr(action, command[1])(self.bot.env))))
+                except:
+                    print >> sys.stderr, "##START##"
+                    traceback.print_last()
+                    print >> sys.stderr, "##END##"
             
 def create(param={}):
     """start-up sequence"""

@@ -76,9 +76,9 @@ def get_response(env, status):
         if len(els) == 2:
             increment_impression(els[1])
         return random.choice(els[0])  
-
+    cleanedtext = status.cleaned()
     def check(pattern):
-        return PATTERN[pattern].search(status.text)
+        return PATTERN[pattern].search(cleanedtext)
 
     isreply = bool(REPLY_REGEX.search(status.text))
     ismentions = isreply or bool(MENTION_REGEX.search(status.text))

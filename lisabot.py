@@ -26,22 +26,21 @@ def main():
     7.実行
     """
     options, args = util.getoptions()
-    
+    bot = lisabot2.controller.create(DEFAULT_PARAM)
     if options.managed:
-        bot = lisabot2.controller.create(DEFAULT_PARAM)
         lisabot2.controller.LisabotController(bot).start()
         bot.run()
     else:
-        if OPTIONS.debug:
-            bot.debug = True
+        if options.debug:
+            #bot.debug = True
             try:
                 bot.run()
             except KeyboardInterrupt:
                 print(action.dump(bot.env))
         else:
-            with daemontools.daemoncontext(OPTIONS.pidfile,
-                                           OPTIONS.logfile,
-                                           OPTIONS.errfile):
+            with daemontools.daemoncontext(options.pidfile,
+                                           options.logfile,
+                                           options.errfile):
                 bot.run()
 
 if __name__ == "__main__":

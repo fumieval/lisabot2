@@ -14,14 +14,14 @@ def getkeywords(x):
     """Get keyword in sentence."""
     keywords = []
     for word, data in parse(x):
-        if data[0] in ["感動詞", "名詞"] and data[1] not in ["非自立", "代名詞"]:
+        if word != "ー" and data[0] in ["感動詞", "名詞"] and data[1] not in ["非自立", "代名詞"]:
             keywords.append(word)
     return keywords
 
 def getelements(x):
     keywords = []
     for word, data in parse(x):
-        if data[0] not in ["助詞", "助動詞", "記号"] and data[6] != "する":
+        if data[0] not in ["助詞", "助動詞", "記号"] and data[6] not in ["する", "ー"]:
             keywords.append(word)
     return keywords
 

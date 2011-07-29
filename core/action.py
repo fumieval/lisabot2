@@ -7,6 +7,7 @@ from __future__ import division
 
 import random
 import re
+import cPickle as pickle
 
 from pysocialbot.action import Action
 

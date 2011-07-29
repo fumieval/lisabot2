@@ -2,6 +2,7 @@
 Controller for Kyorobot
 """
 
+import cPickle as pickle
 import sys
 import threading
 
@@ -44,10 +45,7 @@ def create(param={}):
     bot = bot_twitter_userstream(env,
                                  SCREEN_NAME,
                                  TRIGGER,
-                                 LisabotStreamHandler)
-
-    bot.trigger[Hourly(DT(minutes=55))] = Call(dump)
-    
+                                 LisabotStreamHandler)    
     bot.reset()
     attempt(lambda: bot.load(open(param["STATE_PATH"], "r")), IOError)
     

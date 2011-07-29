@@ -27,10 +27,10 @@ TRIGGER = {Daily(DT(hours=6, minutes=30)): Call(action.getup),
            }
 
 
-DEFAULT_PARAM = {"ENV_PATH": PATH + "var/env.dump",
-                 "STATE_PATH": PATH + "var/state.dump",
-                 "DICTIONARY_PATH": PATH + "var/dict.dump",
-                 "ASSOCIATION_PATH": PATH + "var/dict.dump.assoc",
+DEFAULT_PARAM = {"ENV_PATH": PATH + "/var/env.dump",
+                 "STATE_PATH": PATH + "/var/state.dump",
+                 "DICTIONARY_PATH": PATH + "/var/dict.dump",
+                 "ASSOCIATION_PATH": PATH + "/var/dict.dump.assoc",
                  }
 
 SCREEN_NAME = "Lisa_math"

@@ -213,7 +213,7 @@ def respond(env, status):
         return
 
     if not TZ_ACTIVITY(env):
-        return #The bot doesn't respond during It's sleeping
+        return #寝ている間は反応しない
     
     if status.in_reply_to_status_id:
         if status.id in env.conversation_count:

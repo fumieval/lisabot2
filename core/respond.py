@@ -177,17 +177,11 @@ def get_response(env, status):
         if elements:
             assoc, score = env.association.extract(elements, random.randint(3, 6))
             assoc = map(lambda x: x[1], assoc)
-            if ismentions: #基本的にメンションには反応する
+            if ismentions or score >= len(elements) * RESPONSE_THRESHOLD:
                 keywords = chatter.getkeywords(status.cleaned())
                 text = chatter.greedygenerate(env.markovtable, assoc + keywords)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
-            else:
-                if score >= len(elements) * RESPONSE_THRESHOLD:
-                    keywords = chatter.getkeywords(status.cleaned())
-                    text = chatter.greedygenerate(env.markovtable, assoc + keywords)
-                    if text:
-                        return withimpression("@%(id)s " + text, 1)
 
     if check("リサ"):
         env.api.favorite(status.id)

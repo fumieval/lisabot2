@@ -16,13 +16,15 @@ def follow(env):
 def follow_l(env):
     return random.choice(FOLLOW_L)
 
+
 PATTERN = {"もしゃ":re.compile("もしゃもしゃ|モシャモシャ"),
            "もふ":re.compile("もふもふ|モフモフ"),
+           "なでなで":re.compile("なでなで|ナデナデ"),
            "ぺろ":re.compile("ぺろぺろ|ペロペロ"),
            "ちゅ":re.compile("ちゅっちゅ|チュッチュ"),
            "ぎゅ":re.compile("ぎゅ[っうぅー]?"),
-           "ちゃん":re.compile("(リサ|りさ)(ちゃん|チャン)"),
-           "リサ":re.compile("リサ(?!イタル|イクル|ージュ|ーチ)"),
+           "ちゃん":re.compile("([^ァ-ヾ]リサ|[^ぁ-ゞ]りさ)(ちゃん|チャン)"),
+           "リサ":re.compile("[^ァ-ヾ]リサ[^ァ-ヾ]?"),
            "えっ":re.compile("えっ$"),
            "ほげ":re.compile("ほげ"),
            "REC":re.compile("(●|○)?REC(●|○)?$"),

@@ -8,12 +8,15 @@ from __future__ import division
 import random
 import re
 import cPickle as pickle
+import datetime
 
 from pysocialbot.action import Action
 
-from lisabot2.core import vocab, chatter
+from lisabot2.core import vocab, chatter, holiday
 
 IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet"]
+
+WEEKDAY= {0: "月曜日", 1: "火曜日", 2:"水曜日", 3: "木曜日", 4: "金曜日", 5: "土曜日", 6: "日曜日"}
 
 class Post(Action):
     
@@ -67,10 +70,12 @@ def somniloquy(env):
 
 def getup(env):
     """Get up tweet."""
-    return env.api.post(random.choice(("起床", "作業再開", "起きた"))+ \
-                        random.choice((" 1,1,2,3,",
-                                       " 00001,00001,00010,00011,",
-                                       "")))
+    today = datetime.datetime.today()
+    if today.weekday() or holiday.holiday_name(datetime.datetime.today):
+        return env.api.post("%s %s %s 作業を再開する" % (today.strftime("%m月%d日"),
+                             WEEKDAY[today.weekday()]))
+    else:
+        return env.api.post("起床 " + "00001,00001,00010,00011," * random.randint(0, 1))
 
 def sleep(env):
     """Go to bed tweet."""
@@ -78,6 +83,9 @@ def sleep(env):
                         random.choice((" 1,1,2,3,",
                                        " 00001,00001,00010,00011,",
                                        "")))
+
+def gethome(env):
+    return env.api.post("帰宅")
 
 def poststat(env):
     """Post statistics."""

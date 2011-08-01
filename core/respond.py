@@ -115,6 +115,9 @@ def get_response(env, status):
                               "@%(id)s %(name)s氏、やめて",
                               "@%(id)s やめて…","@%(id)s だめ",
                               "@%(id)s やめて"], -2))   
+        elif check("なで"):
+            choice_i([(3, ["@%(id)s ……", "@%(id)s つづけて"])],
+                            (["@%(id)s 邪魔しないで", "@%(id)s 不要"], 0))
         elif check("ぺろ") or check("ちゅ"):
             return choice_i([(6, ["@%(id)s きゃうん！",
                                   "@%(id)s きゃうん…",
@@ -128,8 +131,8 @@ def get_response(env, status):
                               "@%(id)s やめて"], -2)) 
         elif check("早い"):
             return "@%(id)s UserStreamを使っているから"
-        elif check("rm"):
-            return random.choice(["@%(id)s Deny","@%(id)s Permission Denied"])
+        elif check("rm") or check("REC"):
+            return random.choice(["@%(id)s Deny", "@%(id)s Permission Denied"])
         elif check("アイ"):
             return random.choice(["@%(id)s Iterationのi",
                                   "@%(id)s Indexのi",

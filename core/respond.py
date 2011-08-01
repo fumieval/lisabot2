@@ -48,7 +48,10 @@ class LisabotStreamHandler(userstream.StreamHandler):
             self.env.conversation.append(source.screen_name)
 
 def get_response(env, status):
-    """Get response message to specified status."""
+    """Get response message to specified status.
+    todo: これらの汚い条件文をpysocialbot.botlib.patternに置き換える
+    todo: 返信やお気に入り、好感度増減などの処理をモナドにする
+    """
     
     if 'retweeted_status' in status.__dict__:
         return
@@ -83,7 +86,6 @@ def get_response(env, status):
     isreply = bool(REPLY_REGEX.search(status.text))
     ismentions = isreply or bool(MENTION_REGEX.search(status.text))
     
-    #todo: これらの汚い条件文をpysocialbot.botlib.patternに置き換える
     if isreply:
         if check("もしゃ") or check("もふ"):
             return choice_i([(15, ["@%(id)s きゃうん！",

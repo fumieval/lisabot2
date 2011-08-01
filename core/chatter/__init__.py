@@ -77,7 +77,7 @@ def format_words(wordlist):
             continue
         if word[0] == "#":
             result += " "
-        newflag = all(itertools.imap(lambda x: x in string.ascii_letters, word))
+        newflag = word.isalpha()
         result += " " * (flag and newflag) + word
         flag = newflag
     return result

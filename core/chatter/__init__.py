@@ -77,9 +77,9 @@ def format_words(wordlist, conversation=False):
             continue
         if word[0] == "#":
             result += " "
-        if conversation and word == "リサ":
-            result += "%(name)s"
-            continue
+        #if conversation and word == "リサ":
+        #    result += "%(name)s"
+        #    continue
         newflag = word.isalpha()
         result += " " * (flag and newflag) + word
         flag = newflag

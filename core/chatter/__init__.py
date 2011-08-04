@@ -68,7 +68,7 @@ def greedymarkov(keywords, table, word2, word1, word0, depth=64):
                                      depth - 1)
         return [word0] + result, score
 
-def format_words(wordlist):
+def format_words(wordlist, conversation=False):
     """単語のリストから文章を作る。"""
     flag = False
     result = ""
@@ -77,7 +77,7 @@ def format_words(wordlist):
             continue
         if word[0] == "#":
             result += " "
-        if word == "リサ":
+        if conversation and word == "リサ":
             result += "%(name)s"
             continue
         newflag = word.isalpha()
@@ -85,9 +85,9 @@ def format_words(wordlist):
         flag = newflag
     return result
 
-def greedygenerate(table, keywords):
+def greedygenerate(table, keywords, conversation=False):
     return format_words(greedymarkov(keywords, table, START_SYMBOL,
-                                     START_SYMBOL, START_SYMBOL)[0])
+                                     START_SYMBOL, START_SYMBOL)[0], conversation)
     
 def generate(ltor, rtol, origin=None, keywords=[]):
     """Not implemented

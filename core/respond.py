@@ -179,7 +179,7 @@ def get_response(env, status):
             assoc = map(lambda x: x[1], assoc)
             if ismentions or score >= len(elements) * RESPONSE_THRESHOLD:
                 keywords = chatter.getkeywords(status.cleaned())
-                text = chatter.greedygenerate(env.markovtable, assoc + keywords)
+                text = chatter.greedygenerate(env.markovtable, assoc + keywords, True)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
 

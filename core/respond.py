@@ -48,7 +48,10 @@ class LisabotStreamHandler(userstream.StreamHandler):
             self.env.conversation.append(source.screen_name)
 
 def get_response(env, status):
-    """Get response message to specified status."""
+    """Get response message to specified status.
+    todo: これらの汚い条件文をpysocialbot.botlib.patternに置き換える
+    todo: 返信やお気に入り、好感度増減などの処理をモナドにする
+    """
     
     if 'retweeted_status' in status.__dict__:
         return
@@ -83,7 +86,6 @@ def get_response(env, status):
     isreply = bool(REPLY_REGEX.search(status.text))
     ismentions = isreply or bool(MENTION_REGEX.search(status.text))
     
-    #todo: これらの汚い条件文をpysocialbot.botlib.patternに置き換える
     if isreply:
         if check("もしゃ") or check("もふ"):
             return choice_i([(15, ["@%(id)s きゃうん！",
@@ -175,17 +177,11 @@ def get_response(env, status):
         if elements:
             assoc, score = env.association.extract(elements, random.randint(3, 6))
             assoc = map(lambda x: x[1], assoc)
-            if ismentions: #基本的にメンションには反応する
+            if ismentions or score >= len(elements) * RESPONSE_THRESHOLD:
                 keywords = chatter.getkeywords(status.cleaned())
-                text = chatter.greedygenerate(env.markovtable, assoc + keywords)
+                text = chatter.greedygenerate(env.markovtable, assoc + keywords, True)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
-            else:
-                if score >= len(elements) * RESPONSE_THRESHOLD:
-                    keywords = chatter.getkeywords(status.cleaned())
-                    text = chatter.greedygenerate(env.markovtable, assoc + keywords)
-                    if text:
-                        return withimpression("@%(id)s " + text, 1)
 
     if check("リサ"):
         env.api.favorite(status.id)
@@ -213,7 +209,7 @@ def respond(env, status):
         return
 
     if not TZ_ACTIVITY(env):
-        return #The bot doesn't respond during It's sleeping
+        return #寝ている間は反応しない
     
     if status.in_reply_to_status_id:
         if status.in_reply_to_status_id in env.conversation_count:

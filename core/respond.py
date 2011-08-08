@@ -216,7 +216,7 @@ def respond(env, status):
         return #The bot doesn't respond during It's sleeping
     
     if status.in_reply_to_status_id:
-        if status.id in env.conversation_count:
+        if status.in_reply_to_status_id in env.conversation_count:
             env.conversation_count[status.id] = env.conversation_count[status.in_reply_to_status_id] + 1
             del env.conversation_count[status.in_reply_to_status_id]
         else:
@@ -240,6 +240,7 @@ def respond(env, status):
 
     response = get_response(env, status)
     if response:
+        if status.user.screen_name == "yuagmum": return
         if not status.user.screen_name in env.conversation and \
            status.in_reply_to_screen_name == SCREEN_NAME:
             env.conversation.append(status.user.screen_name)

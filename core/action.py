@@ -71,8 +71,8 @@ def somniloquy(env):
 def getup(env):
     """Get up tweet."""
     today = datetime.datetime.today()
-    if today.weekday() or holiday.holiday_name(datetime.datetime.today):
-        return env.api.post("%s %s %s 作業を再開する" % (today.strftime("%m月%d日"),
+    if today.weekday() > 4 or holiday.holiday_name(today):
+        return env.api.post("%s/%s %s 作業を再開する" % (today.month,today.day,
                              WEEKDAY[today.weekday()]))
     else:
         return env.api.post("起床 " + "00001,00001,00010,00011," * random.randint(0, 1))
@@ -85,6 +85,7 @@ def sleep(env):
                                        "")))
 
 def gethome(env):
+    """Get to home tweet."""
     return env.api.post("帰宅")
 
 def poststat(env):

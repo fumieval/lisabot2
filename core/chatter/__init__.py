@@ -80,7 +80,7 @@ def format_words(wordlist):
         if word == "リサ":
             result += "%(name)s"
             continue
-        newflag = word.isalpha()
+        newflag = not any(itertools.imap(lambda x: x not in string.ascii_letters, word))
         result += " " * (flag and newflag) + word
         flag = newflag
     return result

@@ -6,12 +6,9 @@ import cPickle as pickle
 import sys
 import threading
 
-from pysocialbot import daemontools, twitter
-from pysocialbot.action import Call
 from pysocialbot.botlib.association import Association
 from pysocialbot.prototype import bot_twitter_userstream
 from pysocialbot.struct import Object
-from pysocialbot.trigger import Hourly, DT
 from pysocialbot.util import attempt
 
 

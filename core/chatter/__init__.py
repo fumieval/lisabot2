@@ -21,7 +21,7 @@ def getkeywords(x):
 def getelements(x):
     keywords = []
     for word, data in parse(x):
-        if data[0] not in ["助詞", "助動詞", "記号"] and data[6] not in ["する", "ー"]:
+        if word == "…" or data[0] not in ["助詞", "助動詞", "記号"] and data[6] not in ["する", "ー"]:
             keywords.append(word)
     return keywords
 
@@ -77,17 +77,15 @@ def format_words(wordlist, conversation=False):
             continue
         if word[0] == "#":
             result += " "
-<<<<<<< HEAD
-        if word == "リサ":
+        if conversation and word == "リサ":
             result += "%(name)s"
             continue
+        if word in ["俺", "僕", "私", "わし", "あたい", "あたし", "わたし"]:
+            result += "自分"
+            continue
+        if conversation and word in ["お前", "きみ", "あなた", "貴方", "てめえ", "あんた", "貴様"]:
+            result += "%(name)s氏"
         newflag = not any(itertools.imap(lambda x: x not in string.ascii_letters, word))
-=======
-        #if conversation and word == "リサ":
-        #    result += "%(name)s"
-        #    continue
-        newflag = word.isalpha()
->>>>>>> 2ae755f587b914a74a09f77f7d752fb581c4b86f
         result += " " * (flag and newflag) + word
         flag = newflag
     return result

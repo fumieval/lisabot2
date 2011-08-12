@@ -48,8 +48,8 @@ class Study(Action):
         
         if self.status.in_reply_to_status_id: #会話を学習する
             target = env.api.status(self.status.in_reply_to_status_id)
-            env.association.learn(enumerate(chatter.getelements(target.cleaned())),
-                                  enumerate(chatter.getelements(self.text)))
+            env.association.learn(chatter.getelements(target.cleaned()),
+                                  chatter.getelements(self.text))
 
         return True
     

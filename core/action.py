@@ -14,7 +14,7 @@ from pysocialbot.action import Action
 
 from lisabot2.core import vocab, chatter, holiday
 
-IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet"]
+IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet", "FC2 Blog Notify", "EasyBotter"]
 
 WEEKDAY= {0: "月曜日", 1: "火曜日", 2:"水曜日", 3: "木曜日", 4: "金曜日", 5: "土曜日", 6: "日曜日"}
 
@@ -71,8 +71,8 @@ def somniloquy(env):
 def getup(env):
     """Get up tweet."""
     today = datetime.datetime.today()
-    if today.weekday() > 4 or holiday.holiday_name(today):
-        return env.api.post("%s/%s %s 作業を再開する" % (today.month,today.day,
+    if today.weekday() > 4 or holiday.holiday_name(year=today.year, month=today.month, day=today.day):
+        return env.api.post("%s/%s %s 作業を再開する" % (today.month, today.day,
                              WEEKDAY[today.weekday()]))
     else:
         return env.api.post("起床 " + "00001,00001,00010,00011," * random.randint(0, 1))

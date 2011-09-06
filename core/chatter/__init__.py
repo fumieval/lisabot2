@@ -83,6 +83,7 @@ def format_words(wordlist, conversation=False):
         if word in ["俺", "僕", "私", "わし", "あたい", "あたし", "わたし"]:
             result += "自分"
             continue
+
         if conversation and word in ["お前", "きみ", "あなた", "貴方", "てめえ", "あんた", "貴様"]:
             result += "%(name)s氏"
         newflag = not any(itertools.imap(lambda x: x not in string.ascii_letters, word))

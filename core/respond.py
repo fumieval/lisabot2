@@ -17,11 +17,11 @@ from lisabot2.core import chatter, action, vocab
 from lisabot2.settings import TZ_ACTIVITY, SCREEN_NAME
 
 RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
-REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
-MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
+REPLY_REGEX = re.compile(r"^\.?[@＠][LlRr][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
+MENTION_REGEX = re.compile(r"[@＠][LlRr][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 
 RESPONSE_THRESHOLD = 8
-CONVERSATION_LIMIT = 5
+CONVERSATION_LIMIT = 8
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -236,7 +236,7 @@ def respond(env, status):
 
     response = get_response(env, status)
     if response:
-        if status.user.screen_name == "yuagmum": return
+        if status.user.screen_name in ["yuagmum", "Aleasty"]: return
         if not status.user.screen_name in env.conversation and \
            status.in_reply_to_screen_name == SCREEN_NAME:
             env.conversation.append(status.user.screen_name)

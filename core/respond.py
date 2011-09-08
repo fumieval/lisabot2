@@ -236,10 +236,9 @@ def respond(env, status):
 
     response = get_response(env, status)
     if response:
-        if status.user.screen_name in ["yuagmum", "Aleasty"]: return
         if not status.user.screen_name in env.conversation and \
            status.in_reply_to_screen_name == SCREEN_NAME:
             env.conversation.append(status.user.screen_name)
         env.api.reply(status.id, (response % context)[:140])
-
+    if status.user.screen_name in ["yuagmum", "Aleasty"]: return
     env.daemon.push(trigger.Trigger(), action.Study(status))

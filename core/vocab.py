@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding:utf-8
 from __future__ import unicode_literals
 
 import re
@@ -23,8 +23,8 @@ PATTERN = {"もしゃ":re.compile("もしゃもしゃ|モシャモシャ"),
            "ぺろ":re.compile("ぺろぺろ|ペロペロ"),
            "ちゅ":re.compile("ちゅっちゅ|チュッチュ"),
            "ぎゅ":re.compile("ぎゅ[っうぅー]?"),
-           "ちゃん":re.compile("([^ァ-ヾ]リサ|[^ぁ-ゞ]りさ)(ちゃん|チャン)"),
-           "リサ":re.compile("[^ァ-ヾ]リサ[^ァ-ヾ]?"),
+           "ちゃん":re.compile("(リサ|りさ)(ちゃん|チャン)"),
+           "リサ":re.compile("リサ"),
            "えっ":re.compile("えっ$"),
            "ほげ":re.compile("ほげ"),
            "REC":re.compile("(●|○)?REC(●|○)?$"),

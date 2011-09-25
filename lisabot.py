@@ -38,7 +38,7 @@ def main():
             bot.run()
         except:
             print >> sys.stderr, "##START##"
-            traceback.print_last()
+            traceback.print_exc()
             print >> sys.stderr, "##END##"
     else:
         if options.debug:

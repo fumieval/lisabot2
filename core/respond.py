@@ -17,11 +17,11 @@ from lisabot2.core import chatter, action, vocab
 from lisabot2.settings import TZ_ACTIVITY, SCREEN_NAME
 
 RT_REGEX = re.compile(r"(RT|QT) @\w:?.*")
-REPLY_REGEX = re.compile(r"^\.?[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
-MENTION_REGEX = re.compile(r"[@＠][Ll][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
+REPLY_REGEX = re.compile(r"^\.?[@＠][LlRr][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
+MENTION_REGEX = re.compile(r"[@＠][LlRr][Ii][Ss][Aa]_[Mm][Aa][Tt][Hh]\W")
 
-RESPONSE_THRESHOLD = 5
-CONVERSATION_LIMIT = 5
+RESPONSE_THRESHOLD = 8
+CONVERSATION_LIMIT = 8
 
 class LisabotStreamHandler(userstream.StreamHandler):
     
@@ -212,7 +212,7 @@ def respond(env, status):
         return #寝ている間は反応しない
     
     if status.in_reply_to_status_id:
-        if status.id in env.conversation_count:
+        if status.in_reply_to_status_id in env.conversation_count:
             env.conversation_count[status.id] = env.conversation_count[status.in_reply_to_status_id] + 1
             del env.conversation_count[status.in_reply_to_status_id]
         else:
@@ -240,5 +240,5 @@ def respond(env, status):
            status.in_reply_to_screen_name == SCREEN_NAME:
             env.conversation.append(status.user.screen_name)
         env.api.reply(status.id, (response % context)[:140])
-
+    if status.user.screen_name in ["yuagmum", "Aleasty"]: return
     env.daemon.push(trigger.Trigger(), action.Study(status))

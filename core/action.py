@@ -14,9 +14,9 @@ from pysocialbot.action import Action
 
 from lisabot2.core import vocab, chatter, holiday
 
-IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet", "Tweet Button"]
+IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet", "Tweet Button", "FC2 Blog Notify", "EasyBotter"]
 
-WEEKDAY= {0: "月曜日", 1: "火曜日", 2:"水曜日", 3: "木曜日", 4: "金曜日", 5: "土曜日", 6: "日曜日"}
+WEEKDAY = {0: "月曜日", 1: "火曜日", 2:"水曜日", 3: "木曜日", 4: "金曜日", 5: "土曜日", 6: "日曜日"}
 
 class Post(Action):
     
@@ -48,8 +48,8 @@ class Study(Action):
         
         if self.status.in_reply_to_status_id: #会話を学習する
             target = env.api.status(self.status.in_reply_to_status_id)
-            env.association.learn(enumerate(chatter.getelements(target.cleaned())),
-                                  enumerate(chatter.getelements(self.text)))
+            env.association.learn(chatter.getelements(target.cleaned()),
+                                  chatter.getelements(self.text))
 
         return True
     
@@ -71,8 +71,8 @@ def somniloquy(env):
 def getup(env):
     """Get up tweet."""
     today = datetime.datetime.today()
-    if today.weekday() or holiday.holiday_name(datetime.datetime.today):
-        return env.api.post("%s %s %s 作業を再開する" % (today.strftime("%m月%d日"),
+    if today.weekday() > 4 or holiday.holiday_name(year=today.year, month=today.month, day=today.day):
+        return env.api.post("%s/%s %s 作業を再開する" % (today.month, today.day,
                              WEEKDAY[today.weekday()]))
     else:
         return env.api.post("起床 " + "00001,00001,00010,00011," * random.randint(0, 1))
@@ -85,6 +85,7 @@ def sleep(env):
                                        "")))
 
 def gethome(env):
+    """Get to home tweet."""
     return env.api.post("帰宅")
 
 def poststat(env):

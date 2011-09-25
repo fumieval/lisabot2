@@ -78,8 +78,10 @@ def get_response(env, status):
         
         if len(els) == 2:
             increment_impression(els[1])
-        return random.choice(els[0])  
+        return random.choice(els[0])
+    
     cleanedtext = status.cleaned()
+    
     def check(pattern):
         return PATTERN[pattern].search(cleanedtext)
 
@@ -173,12 +175,12 @@ def get_response(env, status):
             return "@%(id)s 《ちゃん》は不要"
 
     if ismentions or status.in_reply_to_screen_name == None:
-        elements = chatter.getelements(status.cleaned())
+        elements = chatter.getelements(cleanedtext)
         if elements:
-            assoc, score = env.association.extract(elements, random.randint(3, 6))
-            assoc = map(lambda x: x[1], assoc)
+            assoc, score = env.association.extract(elements, random.randint(1, 4))
+            assoc = [y for x, y in assoc]
             if ismentions or score >= len(elements) * RESPONSE_THRESHOLD:
-                keywords = chatter.getkeywords(status.cleaned())
+                keywords = chatter.getkeywords(cleanedtext)
                 text = chatter.greedygenerate(env.markovtable, assoc + keywords, True)
                 if text:
                     return withimpression("@%(id)s " + text, 1)
@@ -227,7 +229,7 @@ def respond(env, status):
             if env.conversation: #今日会話した人に下校を知らせる
                 env.api.post(".%s 《下校》" % \
                 reduce(lambda a, b: a + " " + b if len(a + b) <= 134 else "",
-                       itertools.imap(lambda x: "@" + x, env.conversation)))
+                       ("@" + x for x in env.conversation)))
             else: #ぼっち
                 env.api.post("帰る")
         else: #お前瑞谷女史じゃないだろ
@@ -235,10 +237,11 @@ def respond(env, status):
         return
 
     response = get_response(env, status)
+    
     if response:
         if not status.user.screen_name in env.conversation and \
            status.in_reply_to_screen_name == SCREEN_NAME:
-            env.conversation.append(status.user.screen_name)
+            env.conversation.append(status.user.screen_name) #今日会話した人のリストに追加
         env.api.reply(status.id, (response % context)[:140])
-    if status.user.screen_name in ["yuagmum", "Aleasty"]: return
+
     env.daemon.push(trigger.Trigger(), action.Study(status))

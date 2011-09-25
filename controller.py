@@ -56,9 +56,10 @@ class LisabotController(threading.Thread):
                     print >> sys.stderr, "##START##"
                     traceback.print_exc()
                     print >> sys.stderr, "##END##"
+
             
 def create(param={}):
-    """start-up sequence"""
+    """start-up sequence."""
     try:
         env = Object(pickle.load(open(param["ENV_PATH"], "r")))
     except IOError:
@@ -69,7 +70,7 @@ def create(param={}):
     bot = bot_twitter_userstream(env,
                                  SCREEN_NAME,
                                  TRIGGER,
-                                 LisabotStreamHandler)    
+                                 LisabotStreamHandler)
     bot.reset()
     attempt(lambda: bot.load(open(param["STATE_PATH"], "r")), IOError)
     

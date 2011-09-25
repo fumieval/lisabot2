@@ -4,9 +4,8 @@ Lisabot settings
 
 import os
 
-from pysocialbot.trigger import (dailysection, InDailyPeriod,
-                                  Regular, Hourly, Daily, Randomly, 
-                                  DT)
+from pysocialbot.trigger import (dailysection, InDailyPeriod, DT,
+                                 Regular, Hourly, Daily, Randomly)
 from pysocialbot.action import Call
 from lisabot2.core import action
 

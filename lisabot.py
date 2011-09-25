@@ -16,15 +16,7 @@ from lisabot2.settings import DEFAULT_PARAM
 import lisabot2.controller
 
 def main():
-    """run lisabot.
-    1.環境変数を読み込む
-    2.Botのインスタンスを作成
-    3.データのダンプのスケジュールを追加
-    4.ステートの読み込み
-    5.マルコフ連鎖表の読み込み
-    6.連想記憶の読み込み
-    7.実行
-    """
+    """run lisabot."""
     options, args = util.getoptions()
     bot = lisabot2.controller.create(DEFAULT_PARAM)
     if options.managed:

@@ -14,9 +14,9 @@ from pysocialbot.action import Action
 
 from lisabot2.core import vocab, chatter, holiday
 
-IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet", "FC2 Blog Notify", "EasyBotter"]
+IGNORE_SOURCE = ["twittbot.net", "Tumblr", "Google2Tweet", "Tweet Button", "FC2 Blog Notify", "EasyBotter"]
 
-WEEKDAY= {0: "月曜日", 1: "火曜日", 2:"水曜日", 3: "木曜日", 4: "金曜日", 5: "土曜日", 6: "日曜日"}
+WEEKDAY = {0: "月曜日", 1: "火曜日", 2:"水曜日", 3: "木曜日", 4: "金曜日", 5: "土曜日", 6: "日曜日"}
 
 class Post(Action):
     

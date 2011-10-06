@@ -75,7 +75,7 @@ def format_words(wordlist, conversation=False):
 
         if conversation and word in ["お前", "きみ", "あなた", "貴方", "てめえ", "あんた", "貴様"]:
             result += "%(name)s氏"
-        newflag = not any(x not in string.ascii_letters for x in word)
+        newflag = all(x in string.ascii_letters for x in word)
         result += " " * (flag and newflag) + word
         flag = newflag
     return result

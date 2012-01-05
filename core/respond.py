@@ -53,23 +53,22 @@ def get_response(env, status):
     todo: 返信やお気に入り、好感度増減などの処理をモナドにする
     """
     
-    if 'retweeted_status' in status.__dict__:
-        return
+
 
     if not status.user.id in env.impression:
         env.impression[status.user.id] = 0
     
     def increment_impression(value):
-        """increment the impression."""
+        """increments the impression."""
         env.impression[status.user.id] += value
     
     def withimpression(value, increment=0):
-        """return value with changing impression."""
+        """returns the value and changes impression."""
         increment_impression(increment)
         return value
     
     def choice_i(data, els):
-        """choice response by impression."""
+        """choices response by the impression."""
         for i in data:
             if env.impression[status.user.id] >= i[0]:
                 if len(i) == 3:
@@ -185,15 +184,16 @@ def get_response(env, status):
                 if text:
                     return withimpression("@%(id)s " + text, 1)
 
-    if check("リサ"):
+    if check("リサ"): #自分に対する言及はふぁぼる
         env.api.favorite(status.id)
         return withimpression(None, 1)
 
 def respond(env, status):
-    """Respond to specified status."""
+    """Responds to specified status."""
     if status.user.screen_name == SCREEN_NAME:
-        return #Ignore the status that created by oneself
-    
+        return #Ignores the status that created by oneself
+    if 'retweeted_status' in status.__dict__:
+        return
     now = datetime.datetime.utcnow()
     status.text = RT_REGEX.sub("", status.text).strip()
     context = {"id": status.user.screen_name,
@@ -213,7 +213,7 @@ def respond(env, status):
     if not TZ_ACTIVITY(env):
         return #寝ている間は反応しない
     
-    if status.in_reply_to_status_id:
+    if status.in_reply_to_status_id: #無限会話の防止
         if status.in_reply_to_status_id in env.conversation_count:
             env.conversation_count[status.id] = env.conversation_count[status.in_reply_to_status_id] + 1
             del env.conversation_count[status.in_reply_to_status_id]

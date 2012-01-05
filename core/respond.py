@@ -48,7 +48,7 @@ class LisabotStreamHandler(userstream.StreamHandler):
             self.env.conversation.append(source.screen_name)
 
 def get_response(env, status):
-    """Get response message to specified status.
+    """Generate response message from specified status.
     todo: これらの汚い条件文をpysocialbot.botlib.patternに置き換える
     todo: 返信やお気に入り、好感度増減などの処理をモナドにする
     """
